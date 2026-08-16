@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import WebApp from "@twa-dev/sdk";
 import { authenticate, getDashboard } from "@/lib/api";
 import type { Dashboard } from "@/types/api";
 
@@ -12,6 +11,7 @@ export function useTelegramAuth() {
     let active = true;
     (async () => {
       try {
+        const { default: WebApp } = await import("@twa-dev/sdk");
         WebApp.ready(); WebApp.expand();
         if (!WebApp.initData) throw new Error("Open ApplyPilot from the Telegram bot to sign in securely.");
         await authenticate(WebApp.initData);
@@ -23,4 +23,3 @@ export function useTelegramAuth() {
   }, []);
   return { ...state, reload };
 }
-

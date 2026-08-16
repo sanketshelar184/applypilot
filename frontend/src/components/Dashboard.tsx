@@ -1,11 +1,21 @@
 "use client";
 import { ArrowRight, BriefcaseBusiness, FileText, Plus, Sparkles, Target, WalletCards } from "lucide-react";
-import WebApp from "@twa-dev/sdk";
 import { createResume } from "@/lib/api";
 import type { Dashboard as DashboardType } from "@/types/api";
 
 export function Dashboard({ data, onRefresh }: { data: DashboardType; onRefresh: () => Promise<void> }) {
-  const startResume = async () => { try { WebApp.HapticFeedback.impactOccurred("light"); await createResume(); await onRefresh(); } catch (error) { WebApp.showAlert(error instanceof Error ? error.message : "Could not create resume"); } };
+  const startResume = async () => {
+    try {
+      const { default: WebApp } = await import("@twa-dev/sdk");
+      WebApp.HapticFeedback.impactOccurred("light");
+      await createResume();
+      await onRefresh();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Could not create resume";
+      const { default: WebApp } = await import("@twa-dev/sdk");
+      WebApp.showAlert(message);
+    }
+  };
   const stats = [{label:"Resumes",value:data.resume_count,icon:FileText},{label:"Job matches",value:data.job_match_count,icon:Target},{label:"Applications",value:data.application_count,icon:BriefcaseBusiness},{label:"Credits",value:data.remaining_credits,icon:WalletCards}];
   return <main className="mx-auto min-h-screen max-w-5xl px-4 pb-24 pt-5 sm:px-6">
     <header className="flex items-center justify-between"><div><p className="text-sm text-slate-500">Welcome back</p><h1 className="text-2xl font-bold tracking-tight">{data.first_name}</h1></div><span className="rounded-full bg-brand-pale px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-brand-dark">{data.current_plan} plan</span></header>
@@ -16,4 +26,3 @@ export function Dashboard({ data, onRefresh }: { data: DashboardType; onRefresh:
     </section>
   </main>;
 }
-

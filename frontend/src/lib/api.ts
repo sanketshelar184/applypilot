@@ -1,6 +1,10 @@
 import type { AuthResponse, Dashboard } from "@/types/api";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+const configuredApiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const normalizedApiUrl = configuredApiUrl.replace(/\/$/, "");
+const API_URL = normalizedApiUrl.endsWith("/api/v1")
+  ? normalizedApiUrl
+  : `${normalizedApiUrl}/api/v1`;
 const TOKEN_KEY = "applypilot_session";
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -17,4 +21,3 @@ export async function authenticate(initData: string): Promise<AuthResponse> {
 }
 export const getDashboard = () => request<Dashboard>("/dashboard");
 export const createResume = () => request("/resumes", { method: "POST", body: JSON.stringify({ title: "My Resume" }) });
-
