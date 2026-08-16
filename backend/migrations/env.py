@@ -7,7 +7,11 @@ from app.core.config import get_settings
 from app.models import Base
 
 config = context.config
-config.set_main_option("sqlalchemy.url", get_settings().database_url.replace("+asyncpg", "+psycopg"))
+# ConfigParser uses percent signs for interpolation. Database URLs commonly
+# contain percent-encoded credentials, so escape them before storing the URL in
+# Alembic's configuration. SQLAlchemy receives the original percent signs.
+migration_url = get_settings().database_url.replace("+asyncpg", "+psycopg").replace("%", "%%")
+config.set_main_option("sqlalchemy.url", migration_url)
 if config.config_file_name:
     fileConfig(config.config_file_name)
 target_metadata = Base.metadata
