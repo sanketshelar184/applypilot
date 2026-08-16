@@ -21,6 +21,16 @@ class Settings(BaseSettings):
     cors_origins: list[str] = ["http://localhost:3000"]
     log_level: str = "INFO"
 
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def normalize_database_url(cls, value: object) -> object:
+        if isinstance(value, str):
+            if value.startswith("postgres://"):
+                return value.replace("postgres://", "postgresql+asyncpg://", 1)
+            if value.startswith("postgresql://"):
+                return value.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return value
+
     @field_validator("cors_origins", mode="before")
     @classmethod
     def parse_cors_origins(cls, value: object) -> object:
@@ -32,4 +42,3 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()  # type: ignore[call-arg]
-
